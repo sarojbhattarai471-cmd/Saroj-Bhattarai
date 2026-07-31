@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decentralized Storage Prioritisation — Expert Pairwise Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#151E33;
+    --ink-soft:#48577A;
+    --ink-faint:#8992A8;
+    --paper:#EFF1F4;
+    --panel:#FFFFFF;
+    --line:#DBDFE7;
+    --brass:#A9791C;
+    --brass-deep:#7C5A15;
+    --brass-tint:#F4E9D3;
+    --teal:#2C6E63;
+    --teal-tint:#DEEDE9;
+    --rust:#A23F26;
+    --rust-tint:#F3E0D8;
+    --shadow: 0 1px 2px rgba(21,30,51,.04), 0 8px 24px -12px rgba(21,30,51,.18);
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:120px;
+  }
+  ::selection{background:var(--brass-tint);}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;color:var(--ink);margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:.02em;}
+  a{color:inherit;}
+
+  /* ---------- Header ---------- */
+  header.hero{
+    background:
+      radial-gradient(1100px 420px at 15% -10%, rgba(169,121,28,.16), transparent 60%),
+      linear-gradient(180deg,#151E33 0%, #1C2842 100%);
+    color:#F4F1EA;
+    padding:56px 0 44px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute; right:-60px; top:-40px; width:340px; height:340px;
+    border:1px solid rgba(244,241,234,.08); border-radius:50%;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em;
+    text-transform:uppercase; color:#D9C88F; margin-bottom:18px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:#D9C88F;}
+  header.hero h1{font-size:clamp(28px,4vw,40px); line-height:1.15; color:#FBF9F5; max-width:680px;}
+  header.hero p.lede{
+    margin-top:14px; max-width:600px; color:#C7CDDE; font-size:16px; line-height:1.6;
+  }
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap:28px; margin-top:28px;
+    padding-top:22px; border-top:1px solid rgba(244,241,234,.14);
+  }
+  .meta-item .k{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#93A0BF; font-family:'IBM Plex Mono',monospace;}
+  .meta-item .v{font-size:14px; color:#F1EEE6; margin-top:3px; font-weight:500;}
+
+  /* ---------- generic section ---------- */
+  section{padding:44px 0;}
+  .section-head{margin-bottom:22px;}
+  .section-head .num{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--brass-deep);
+    letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:6px;
+  }
+  .section-head h2{font-size:24px;}
+  .section-head p{color:var(--ink-soft); font-size:15px; line-height:1.6; max-width:640px; margin-top:8px;}
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- Saaty scale ---------- */
+  .scale-table{width:100%; border-collapse:collapse; font-size:14px;}
+  .scale-table th{
+    text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--ink-faint); padding:12px 16px; border-bottom:1px solid var(--line);
+  }
+  .scale-table td{padding:12px 16px; border-bottom:1px solid #EEF0F4; vertical-align:top;}
+  .scale-table tr:last-child td{border-bottom:none;}
+  .scale-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px;height:26px;border-radius:7px; background:var(--brass-tint); color:var(--brass-deep);
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px;
+  }
+  .scale-table td.desc{color:var(--ink-soft);}
+  .reciprocal-note{
+    margin:16px 0 0; padding:14px 16px; background:#F7F5EF; border:1px dashed #D9C99B;
+    border-radius:10px; font-size:13.5px; color:var(--ink-soft); line-height:1.55;
+  }
+
+  /* ---------- expert profiles ---------- */
+  .profile-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .profile-card{
+    background:var(--panel); border:1.5px solid var(--line); border-radius:var(--radius);
+    padding:20px; cursor:pointer; transition:border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+    position:relative;
+  }
+  .profile-card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .profile-card.active{border-color:var(--brass); box-shadow:0 0 0 3px var(--brass-tint);}
+  .profile-avatar{
+    width:40px;height:40px;border-radius:50%;
+    background:linear-gradient(135deg,#1C2842,#3A4A6B);
+    color:#F4E9D3; display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-weight:600; font-size:16px; margin-bottom:14px;
+  }
+  .profile-card h3{font-size:16px;}
+  .profile-card .role{font-size:12.5px; color:var(--ink-soft); margin-top:3px;}
+  .profile-progress{
+    margin-top:16px; height:6px; border-radius:4px; background:#EEF0F4; overflow:hidden;
+  }
+  .profile-progress > div{height:100%; background:var(--brass); width:0%; transition:width .25s ease;}
+  .profile-progress-label{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint); margin-top:8px;}
+  .profile-check{
+    position:absolute; top:16px; right:16px; width:20px;height:20px;border-radius:50%;
+    background:var(--teal); color:#fff; display:none; align-items:center; justify-content:center; font-size:12px;
+  }
+  .profile-card.done .profile-check{display:flex;}
+
+  /* ---------- comparison items ---------- */
+  .progress-bar{
+    display:flex; align-items:center; gap:12px; margin-bottom:26px;
+  }
+  .progress-track{flex:1; height:8px; background:#E4E7EC; border-radius:5px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--brass),#C79A3E); width:0%; transition:width .3s ease;}
+  .progress-count{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--ink-soft); white-space:nowrap;}
+
+  .item{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:24px 26px 22px; margin-bottom:16px; box-shadow:var(--shadow);
+  }
+  .item-index{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint);
+    text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px;
+  }
+  .item-question{font-size:15.5px; color:var(--ink); margin-bottom:20px; line-height:1.5;}
+  .item-question b{color:var(--brass-deep);}
+
+  .beam-row{display:flex; align-items:center; gap:18px;}
+  .crit-label{width:150px; flex-shrink:0; font-size:13.5px; font-weight:600; line-height:1.3;}
+  .crit-label.left{text-align:right;}
+  .crit-label .code{display:block; font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:11px; color:var(--ink-faint); margin-top:2px;}
+
+  .beam-wrap{flex:1; padding:0 4px;}
+  .beam-visual{
+    position:relative; height:56px; display:flex; align-items:flex-end; justify-content:center; margin-bottom:6px;
+  }
+  .beam-bar{
+    position:absolute; top:24px; left:6%; right:6%; height:4px; background:#DCD3BC; border-radius:3px;
+    transform-origin:center; transition:transform .15s ease;
+  }
+  .beam-bar::before, .beam-bar::after{
+    content:""; position:absolute; top:50%; width:9px; height:9px; border-radius:50%;
+    background:var(--brass); transform:translateY(-50%);
+  }
+  .beam-bar::before{left:0;}
+  .beam-bar::after{right:0;}
+  .fulcrum{
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+    width:0;height:0; border-left:9px solid transparent; border-right:9px solid transparent;
+    border-bottom:14px solid var(--ink);
+  }
+
+  input[type=range].beam-slider{
+    width:100%; -webkit-appearance:none; appearance:none; height:22px; background:transparent; margin:0;
+  }
+  input[type=range].beam-slider::-webkit-slider-runnable-track{
+    height:4px; background:transparent;
+  }
+  input[type=range].beam-slider::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; margin-top:-9px;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--ink); border:3px solid #fff; box-shadow:0 1px 4px rgba(21,30,51,.35);
+    cursor:pointer;
+  }
+  input[type=range].beam-slider::-moz-range-track{height:4px; background:transparent;}
+  input[type=range].beam-slider::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%; background:var(--ink); border:3px solid #fff;
+    box-shadow:0 1px 4px rgba(21,30,51,.35); cursor:pointer;
+  }
+
+  .tick-labels{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-faint); padding:0 2px; margin-top:2px;}
+  .judgment-readout{
+    text-align:center; margin-top:12px; font-size:13.5px; font-weight:600; min-height:20px;
+  }
+  .judgment-readout .side-tag{
+    display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600;
+    font-family:'IBM Plex Mono',monospace; margin-right:8px; vertical-align:middle;
+  }
+  .side-tag.equal{background:#EEF0F4; color:var(--ink-soft);}
+  .side-tag.left{background:var(--teal-tint); color:var(--teal);}
+  .side-tag.right{background:var(--brass-tint); color:var(--brass-deep);}
+
+  /* ---------- sticky action bar ---------- */
+  .stickybar{
+    position:fixed; left:0; right:0; bottom:0; z-index:40;
+    background:rgba(255,255,255,.92); backdrop-filter:blur(10px);
+    border-top:1px solid var(--line); box-shadow:0 -8px 24px rgba(21,30,51,.08);
+  }
+  .stickybar-inner{
+    max-width:920px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; gap:18px;
+  }
+  .stickybar .who{font-size:13px; color:var(--ink-soft);}
+  .stickybar .who b{color:var(--ink); font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  .stickybar .spacer{flex:1;}
+  .stickybar .mini-progress{width:140px; height:6px; background:#E4E7EC; border-radius:4px; overflow:hidden;}
+  .stickybar .mini-progress > div{height:100%; background:var(--brass);}
+
+  button{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:14px; border:none; border-radius:9px;
+    padding:11px 20px; cursor:pointer; transition:filter .12s ease, transform .08s ease;
+  }
+  button:active{transform:scale(.98);}
+  .btn-primary{background:var(--ink); color:#F4F1EA;}
+  .btn-primary:hover{filter:brightness(1.15);}
+  .btn-primary:disabled{background:#C7CCD8; color:#8992A8; cursor:not-allowed;}
+  .btn-ghost{background:transparent; color:var(--ink-soft); border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--ink-soft); color:var(--ink);}
+  .btn-brass{background:var(--brass); color:#fff;}
+  .btn-brass:hover{filter:brightness(1.08);}
+
+  /* ---------- results ---------- */
+  .results-panel{padding:26px 28px;}
+  .cr-badge{
+    display:inline-flex; align-items:center; gap:10px; padding:10px 16px; border-radius:10px;
+    font-size:14px; font-weight:600; margin-bottom:22px;
+  }
+  .cr-badge.good{background:var(--teal-tint); color:var(--teal);}
+  .cr-badge.bad{background:var(--rust-tint); color:var(--rust);}
+  .cr-badge .cr-dot{width:8px;height:8px;border-radius:50%; background:currentColor;}
+
+  .weight-rows{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .weight-row{display:flex; align-items:center; gap:14px;}
+  .weight-row .wlabel{width:190px; font-size:13.5px; font-weight:600; flex-shrink:0;}
+  .weight-row .wlabel .code{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:11px; color:var(--ink-faint);}
+  .weight-track{flex:1; height:14px; background:#EEF0F4; border-radius:8px; overflow:hidden;}
+  .weight-fill{height:100%; background:linear-gradient(90deg,#1C2842,var(--brass));}
+  .weight-pct{width:56px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--ink-soft);}
+
+  .matrix-table{width:100%; border-collapse:collapse; margin-top:22px; font-size:13px;}
+  .matrix-table th, .matrix-table td{
+    text-align:center; padding:9px 6px; border:1px solid #ECEEF2; font-family:'IBM Plex Mono',monospace;
+  }
+  .matrix-table th{background:#F7F8FA; color:var(--ink-soft); font-weight:600;}
+  .matrix-table td.diag{background:#FAFAF8; color:var(--ink-faint);}
+
+  .export-row{display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;}
+
+  /* ---------- footer note ---------- */
+  .demo-note{
+    max-width:920px; margin:0 auto; padding:0 24px 60px; color:var(--ink-faint); font-size:12.5px; line-height:1.6;
+  }
+  .demo-note .flag{
+    display:inline-block; margin-right:6px; font-family:'IBM Plex Mono',monospace; font-size:10.5px;
+    text-transform:uppercase; letter-spacing:.08em; background:var(--rust-tint); color:var(--rust);
+    padding:2px 8px; border-radius:5px; font-weight:600;
+  }
+
+  @media(max-width:640px){
+    .profile-grid{grid-template-columns:1fr;}
+    .beam-row{flex-direction:column; align-items:stretch; gap:8px;}
+    .crit-label{width:auto; text-align:left !important;}
+    .weight-row .wlabel{width:120px;}
+  }
+
+  .hidden{display:none !important;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot"></span> PRJ701 Capstone — Proof of Concept</span>
+    <h1>Pairwise Comparison of Decentralized Storage Criteria</h1>
+    <p class="lede">A short instrument for weighing the five criteria used to prioritise decentralized storage
+      techniques in energy blockchain (He et al., 2024, Table 1), using Saaty's Analytic Hierarchy Process.
+      This build is for supervisor review before any real expert data is collected.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="k">Study</span><span class="v">Decentralized Storage Prioritisation Framework</span></div>
+      <div class="meta-item"><span class="k">Method</span><span class="v">AHP pairwise comparison — Saaty 1–9 scale</span></div>
+      <div class="meta-item"><span class="k">Comparisons</span><span class="v">10 pairs across 5 criteria</span></div>
+      <div class="meta-item"><span class="k">Group</span><span class="v">Bhattarai · Khanal · Shah — KIHE</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ SAATY SCALE EXPLAINER ============ -->
+  <section id="scale-section">
+    <div class="section-head">
+      <span class="num">01 — Before you begin</span>
+      <h2>How to use the 1–9 scale</h2>
+      <p>For each pair of criteria below, judge how much more important one is than the other for prioritising
+        decentralized storage techniques. Choose 1 if they matter equally; move toward 9 the more strongly you
+        favour one side.</p>
+    </div>
+    <div class="panel">
+      <table class="scale-table">
+        <thead><tr><th style="width:70px;">Value</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><span class="scale-num">1</span></td><td class="desc"><b style="color:var(--ink)">Equal importance</b> — both criteria contribute the same to the prioritisation decision.</td></tr>
+          <tr><td><span class="scale-num">3</span></td><td class="desc"><b style="color:var(--ink)">Moderate importance</b> — experience or judgement slightly favours one criterion over the other.</td></tr>
+          <tr><td><span class="scale-num">5</span></td><td class="desc"><b style="color:var(--ink)">Strong importance</b> — one criterion is strongly favoured over the other.</td></tr>
+          <tr><td><span class="scale-num">7</span></td><td class="desc"><b style="color:var(--ink)">Very strong importance</b> — one criterion's dominance is demonstrated in practice.</td></tr>
+          <tr><td><span class="scale-num">9</span></td><td class="desc"><b style="color:var(--ink)">Extreme importance</b> — the evidence favouring one criterion is as strong as possible.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="reciprocal-note">
+      <b>2, 4, 6, 8</b> are intermediate values for when your judgement sits between two of the levels above.
+      You never need to enter a fraction: sliding toward the <i>left</i> criterion or the <i>right</i> criterion
+      automatically records the correct reciprocal (e.g. favouring the right side at strength 5 is stored as
+      1/5 in the left criterion's row of the comparison matrix).
+    </div>
+  </section>
+
+  <!-- ============ EXPERT PROFILES ============ -->
+  <section id="profiles-section">
+    <div class="section-head">
+      <span class="num">02 — Choose a profile</span>
+      <h2>Expert panel</h2>
+      <p>Three placeholder expert profiles for this proof of concept. No identifying data is collected here —
+        real expert names and responses will only be gathered once this form is approved.</p>
+    </div>
+    <div class="profile-grid" id="profileGrid"></div>
+  </section>
+
+  <!-- ============ PAIRWISE ITEMS ============ -->
+  <section id="form-section">
+    <div class="section-head">
+      <span class="num">03 — Pairwise judgements</span>
+      <h2 id="activeExpertHeading">Judgements — Expert 1</h2>
+      <p>Answer all 10 comparisons. Your position is saved in this browser session only; nothing is sent
+        anywhere until you choose to export.</p>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-count" id="progressCount">0 / 10 answered</div>
+    </div>
+
+    <div id="itemsContainer"></div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="results-section" class="hidden">
+    <div class="section-head">
+      <span class="num">04 — Result</span>
+      <h2>Derived weights &amp; consistency</h2>
+      <p>Computed live from this expert's 10 judgements using the standard AHP normalise-and-average method —
+        the same calculation used in the accompanying AHP + TOPSIS workbook.</p>
+    </div>
+    <div class="panel results-panel">
+      <div id="crBadge" class="cr-badge good"><span class="cr-dot"></span> <span id="crText">CR = 0%</span></div>
+
+      <div class="weight-rows" id="weightRows"></div>
+
+      <h3 style="font-size:15px;margin-top:28px;margin-bottom:4px;">Derived comparison matrix</h3>
+      <table class="matrix-table" id="matrixTable"></table>
+
+      <div class="export-row">
+        <button class="btn-brass" id="exportJsonBtn">Export this expert's responses (.json)</button>
+        <button class="btn-ghost" id="exportCsvBtn">Export as CSV</button>
+        <button class="btn-ghost" id="resetBtn">Clear this expert &amp; redo</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="demo-note">
+  <span class="flag">Proof of concept</span>
+  This build does not store, transmit, or persist any responses to a server — everything lives in this
+  browser tab and disappears on reload. It exists so the supervisor can review the instrument design and
+  the AHP calculation before real expert data collection begins, per the Phase 2 sign-off requirement.
+</div>
+
+<div class="stickybar">
+  <div class="stickybar-inner">
+    <div class="who">Active profile: <b id="stickyExpertName">Expert 1</b></div>
+    <div class="mini-progress"><div id="stickyProgress" style="width:0%"></div></div>
+    <div class="spacer"></div>
+    <button class="btn-ghost" id="prevExpertBtn">Previous expert</button>
+    <button class="btn-primary" id="submitBtn" disabled>Compute weights</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Data model ----------
+  var CRITERIA = [
+    {id:"C1", name:"Single point failure", short:"SPF"},
+    {id:"C2", name:"Malicious tampering",  short:"MT"},
+    {id:"C3", name:"Storage efficiency",   short:"SE"},
+    {id:"C4", name:"Enhanced transparency",short:"ET"},
+    {id:"C5", name:"Enhanced trust",       short:"EnT"}
+  ];
+
+  var PAIRS = [];
+  for (var i=0;i<CRITERIA.length;i++){
+    for (var j=i+1;j<CRITERIA.length;j++){
+      PAIRS.push([i,j]);
+    }
+  }
+
+  var EXPERTS = [
+    {id:"E1", label:"Expert 1", role:"Placeholder profile — panel seat 1", initial:"E1"},
+    {id:"E2", label:"Expert 2", role:"Placeholder profile — panel seat 2", initial:"E2"},
+    {id:"E3", label:"Expert 3", role:"Placeholder profile — panel seat 3", initial:"E3"}
+  ];
+
+  // in-memory only — cleared on reload, nothing persisted or transmitted
+  var responses = { E1:{}, E2:{}, E3:{} };
+  var activeExpert = "E1";
+
+  var CENTER = 8; // slider index for "equal" (0..16)
+
+  function idxToLabel(idx){
+    if (idx === CENTER) return {mag:1, side:"equal"};
+    if (idx < CENTER) return {mag:(CENTER-idx)+1, side:"left"};
+    return {mag:(idx-CENTER)+1, side:"right"};
+  }
+  function idxToAij(idx){ // value for the (left, right) matrix cell a_ij
+    var l = idxToLabel(idx);
+    if (l.side === "equal") return 1;
+    if (l.side === "left") return l.mag;
+    return 1/l.mag;
+  }
+  function beamAngle(idx){
+    var t = (idx - CENTER) / CENTER; // -1..1
+    return (t * 16).toFixed(1);
+  }
+
+  // ---------- Render: profiles ----------
+  var profileGrid = document.getElementById("profileGrid");
+  function renderProfiles(){
+    profileGrid.innerHTML = "";
+    EXPERTS.forEach(function(ex){
+      var answered = Object.keys(responses[ex.id]).length;
+      var pct = Math.round((answered/PAIRS.length)*100);
+      var card = document.createElement("div");
+      card.className = "profile-card" + (ex.id===activeExpert ? " active":"") + (answered===PAIRS.length ? " done":"");
+      card.innerHTML =
+        '<div class="profile-check">\u2713</div>' +
+        '<div class="profile-avatar">'+ex.initial+'</div>' +
+        '<h3>'+ex.label+'</h3>' +
+        '<div class="role">'+ex.role+'</div>' +
+        '<div class="profile-progress"><div style="width:'+pct+'%"></div></div>' +
+        '<div class="profile-progress-label">'+answered+' / '+PAIRS.length+' judgements</div>';
+      card.addEventListener("click", function(){
+        activeExpert = ex.id;
+        renderAll();
+        document.getElementById("form-section").scrollIntoView({behavior:"smooth", block:"start"});
+      });
+      profileGrid.appendChild(card);
+    });
+  }
+
+  // ---------- Render: form items ----------
+  var itemsContainer = document.getElementById("itemsContainer");
+  function renderItems(){
+    itemsContainer.innerHTML = "";
+    PAIRS.forEach(function(pair, idx){
+      var left = CRITERIA[pair[0]];
+      var right = CRITERIA[pair[1]];
+      var key = left.id+"_"+right.id;
+      var stored = responses[activeExpert][key];
+      var sliderVal = (stored !== undefined) ? stored : CENTER;
+
+      var item = document.createElement("div");
+      item.className = "item";
+      item.innerHTML =
+        '<div class="item-index">Comparison '+(idx+1)+' of '+PAIRS.length+'</div>' +
+        '<div class="item-question">How does <b>'+left.name+'</b> compare with <b>'+right.name+'</b> ' +
+          'when prioritising a decentralized storage technique?</div>' +
+        '<div class="beam-row">' +
+          '<div class="crit-label left">'+left.name+'<span class="code">'+left.id+'</span></div>' +
+          '<div class="beam-wrap">' +
+            '<div class="beam-visual">' +
+              '<div class="beam-bar" data-beam="'+idx+'"></div>' +
+              '<div class="fulcrum"></div>' +
+            '</div>' +
+            '<input type="range" class="beam-slider" min="0" max="16" step="1" value="'+sliderVal+'" data-idx="'+idx+'" data-key="'+key+'">' +
+            '<div class="tick-labels"><span>9</span><span>7</span><span>5</span><span>3</span><span>1</span><span>3</span><span>5</span><span>7</span><span>9</span></div>' +
+            '<div class="judgment-readout" data-readout="'+idx+'"></div>' +
+          '</div>' +
+          '<div class="crit-label">'+right.name+'<span class="code">'+right.id+'</span></div>' +
+        '</div>';
+      itemsContainer.appendChild(item);
+
+      var beamEl = item.querySelector('[data-beam="'+idx+'"]');
+      var readoutEl = item.querySelector('[data-readout="'+idx+'"]');
+      var sliderEl = item.querySelector('input[type=range]');
+
+      function paint(v){
+        beamEl.style.transform = "rotate("+beamAngle(v)+"deg)";
+        var l = idxToLabel(parseInt(v,10));
+        var text, tagClass, tagText;
+        if (l.side === "equal"){
+          tagClass="equal"; tagText="EQUAL"; text=left.name+" and "+right.name+" are equally important.";
+        } else if (l.side === "left"){
+          tagClass="left"; tagText=left.short+" \u25C0"; text=left.name+" is favoured over "+right.name+" — strength "+l.mag+".";
+        } else {
+          tagClass="right"; tagText="\u25B6 "+right.short; text=right.name+" is favoured over "+left.name+" — strength "+l.mag+".";
+        }
+        readoutEl.innerHTML = '<span class="side-tag '+tagClass+'">'+tagText+'</span>'+text;
+      }
+      paint(sliderVal);
+
+      sliderEl.addEventListener("input", function(e){
+        var v = parseInt(e.target.value,10);
+        responses[activeExpert][e.target.getAttribute("data-key")] = v;
+        paint(v);
+        updateProgress();
+        renderProfiles(); // keep card progress in sync
+      });
+    });
+  }
+
+  // ---------- Progress ----------
+  function updateProgress(){
+    var answered = Object.keys(responses[activeExpert]).length;
+    var pct = Math.round((answered/PAIRS.length)*100);
+    document.getElementById("progressFill").style.width = pct+"%";
+    document.getElementById("progressCount").textContent = answered+" / "+PAIRS.length+" answered";
+    document.getElementById("stickyProgress").style.width = pct+"%";
+    var submitBtn = document.getElementById("submitBtn");
+    submitBtn.disabled = answered < PAIRS.length;
+    document.getElementById("stickyExpertName").textContent =
+      EXPERTS.filter(function(e){return e.id===activeExpert;})[0].label;
+    document.getElementById("activeExpertHeading").textContent =
+      "Judgements — "+EXPERTS.filter(function(e){return e.id===activeExpert;})[0].label;
+  }
+
+  // ---------- AHP computation ----------
+  function buildMatrix(expertId){
+    var n = CRITERIA.length;
+    var M = [];
+    for (var r=0;r<n;r++){ M.push(new Array(n).fill(1)); }
+    PAIRS.forEach(function(pair){
+      var left = CRITERIA[pair[0]], right = CRITERIA[pair[1]];
+      var key = left.id+"_"+right.id;
+      var idx = responses[expertId][key];
+      if (idx === undefined) idx = CENTER;
+      var aij = idxToAij(idx); // row=left(i), col=right(j)
+      M[pair[0]][pair[1]] = aij;
+      M[pair[1]][pair[0]] = 1/aij;
+    });
+    return M;
+  }
+
+  function computeAHP(M){
+    var n = M.length;
+    var colSum = new Array(n).fill(0);
+    for (var c=0;c<n;c++){ for (var r=0;r<n;r++){ colSum[c]+=M[r][c]; } }
+    var norm = [];
+    for (var r=0;r<n;r++){
+      norm.push(M[r].map(function(v,c){ return v/colSum[c]; }));
+    }
+    var weights = norm.map(function(row){
+      return row.reduce(function(a,b){return a+b;},0)/n;
+    });
+    // consistency
+    var weightedSum = [];
+    for (var r=0;r<n;r++){
+      var s=0;
+      for (var c=0;c<n;c++){ s += M[r][c]*weights[c]; }
+      weightedSum.push(s);
+    }
+    var ratios = weightedSum.map(function(v,i){ return v/weights[i]; });
+    var lambdaMax = ratios.reduce(function(a,b){return a+b;},0)/n;
+    var CI = (lambdaMax-n)/(n-1);
+    var RI_TABLE = {1:0,2:0,3:0.58,4:0.9,5:1.12,6:1.24,7:1.32,8:1.41,9:1.45,10:1.49};
+    var RI = RI_TABLE[n] || 1.12;
+    var CR = RI===0 ? 0 : CI/RI;
+    return {weights:weights, lambdaMax:lambdaMax, CI:CI, RI:RI, CR:CR};
+  }
+
+  // ---------- Results rendering ----------
+  function renderResults(){
+    var M = buildMatrix(activeExpert);
+    var res = computeAHP(M);
+    var section = document.getElementById("results-section");
+    section.classList.remove("hidden");
+
+    var crBadge = document.getElementById("crBadge");
+    var crText = document.getElementById("crText");
+    var crPct = (res.CR*100).toFixed(1);
+    if (res.CR < 0.10){
+      crBadge.className = "cr-badge good";
+      crText.textContent = "Consistency ratio CR = "+crPct+"% — judgements are consistent (threshold 10%).";
+    } else {
+      crBadge.className = "cr-badge bad";
+      crText.textContent = "Consistency ratio CR = "+crPct+"% — above the 10% threshold. Consider revisiting a few comparisons.";
+    }
+
+    var weightRows = document.getElementById("weightRows");
+    weightRows.innerHTML = "";
+    var maxW = Math.max.apply(null, res.weights);
+    CRITERIA.forEach(function(cr, i){
+      var pct = (res.weights[i]*100);
+      var row = document.createElement("div");
+      row.className = "weight-row";
+      row.innerHTML =
+        '<div class="wlabel">'+cr.name+'<span class="code" style="display:block;">'+cr.id+'</span></div>' +
+        '<div class="weight-track"><div class="weight-fill" style="width:'+((res.weights[i]/maxW)*100).toFixed(1)+'%"></div></div>' +
+        '<div class="weight-pct">'+pct.toFixed(1)+'%</div>';
+      weightRows.appendChild(row);
+    });
+
+    var matrixTable = document.getElementById("matrixTable");
+    var head = "<tr><th></th>"+CRITERIA.map(function(c){return "<th>"+c.id+"</th>";}).join("")+"</tr>";
+    var rows = M.map(function(row,r){
+      var cells = row.map(function(v,c){
+        return r===c ? '<td class="diag">1</td>' : "<td>"+(Number.isInteger(v)?v:v.toFixed(2))+"</td>";
+      }).join("");
+      return "<tr><th>"+CRITERIA[r].id+"</th>"+cells+"</tr>";
+    }).join("");
+    matrixTable.innerHTML = head+rows;
+
+    section.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  // ---------- Export ----------
+  function download(filename, content, mime){
+    var blob = new Blob([content], {type:mime});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function exportJson(){
+    var M = buildMatrix(activeExpert);
+    var res = computeAHP(M);
+    var payload = {
+      expert: activeExpert,
+      generated: new Date().toISOString(),
+      note: "Proof-of-concept export — no personal data collected.",
+      judgements: responses[activeExpert],
+      matrix: M,
+      weights: CRITERIA.map(function(c,i){ return {id:c.id, name:c.name, weight:res.weights[i]}; }),
+      lambdaMax: res.lambdaMax, CI: res.CI, RI: res.RI, CR: res.CR
+    };
+    download(activeExpert+"_pairwise_responses.json", JSON.stringify(payload, null, 2), "application/json");
+  }
+
+  function exportCsv(){
+    var lines = ["Criterion_Left,Criterion_Right,Saaty_Value_LeftOverRight"];
+    PAIRS.forEach(function(pair){
+      var left = CRITERIA[pair[0]], right = CRITERIA[pair[1]];
+      var key = left.id+"_"+right.id;
+      var idx = responses[activeExpert][key];
+      var val = (idx===undefined) ? 1 : idxToAij(idx);
+      lines.push(left.id+","+right.id+","+(Number.isInteger(val)?val:val.toFixed(4)));
+    });
+    download(activeExpert+"_pairwise_responses.csv", lines.join("\n"), "text/csv");
+  }
+
+  // ---------- Wiring ----------
+  document.getElementById("submitBtn").addEventListener("click", renderResults);
+  document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+  document.getElementById("exportCsvBtn").addEventListener("click", exportCsv);
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    responses[activeExpert] = {};
+    document.getElementById("results-section").classList.add("hidden");
+    renderAll();
+  });
+  document.getElementById("prevExpertBtn").addEventListener("click", function(){
+    var ids = EXPERTS.map(function(e){return e.id;});
+    var i = ids.indexOf(activeExpert);
+    activeExpert = ids[(i-1+ids.length)%ids.length];
+    document.getElementById("results-section").classList.add("hidden");
+    renderAll();
+  });
+
+  function renderAll(){
+    renderProfiles();
+    renderItems();
+    updateProgress();
+  }
+  renderAll();
+
+})();
+</script>
+</body>
+</html>
